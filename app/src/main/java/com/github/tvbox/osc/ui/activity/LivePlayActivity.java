@@ -133,12 +133,15 @@ public class LivePlayActivity extends BaseActivity {
     private TextView tv_right_top_epg_name;
     private TextView tv_right_top_type;
     private ImageView iv_circle_bg;
+    private TextView tv_netspeedinfo;
+    private TextView tv_ad ;
+    private TextView tv_voluminfo ;
     private TextView tv_shownum ;
     private TextView txtNoEpg ;
     private ImageView iv_back_bg;
 
     private ObjectAnimator objectAnimator;
-    public String epgStringAddress ="";
+    private ObjectAnimator objectAnimator2;
 
 
 
@@ -151,10 +154,6 @@ public class LivePlayActivity extends BaseActivity {
 
     @Override
     protected void init() {
-
-        epgStringAddress = Hawk.get(HawkConfig.EPG_URL,"");
-        if(epgStringAddress == null || epgStringAddress.length()<5)
-            epgStringAddress = "http://epg.51zmt.top:8000/api/diyp/";
 
         setLoadSir(findViewById(R.id.live_root));
         mVideoView = findViewById(R.id.mVideoView);
@@ -227,7 +226,7 @@ public class LivePlayActivity extends BaseActivity {
             mRightEpgList.setAdapter(myAdapter);
             mRightEpgList.setSelection(i);
         }else{
-            Epginfo epgbcinfo = new Epginfo("暂无节目信息", "00:00", "23:59");
+            Epginfo epgbcinfo = new Epginfo("以实时节目播放为准", "00:00", "23:59");
             arrayList.add(epgbcinfo);
             epgdata=arrayList;
             myAdapter = new MyEpgAdapter( epgdata,this,0);
@@ -240,36 +239,33 @@ public class LivePlayActivity extends BaseActivity {
         final String channelName = channel_Name.getChannelName();
         Date date = new Date();
         SimpleDateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd");
-        OkGo.<String>get(epgStringAddress + "?ch="+  URLEncoder.encode(channelName.replace("+", "[add]").toString()))
-                .params("date", timeFormat.format(date))
-                .execute(new AbsCallback<String>() {
-                    @Override
-                    public void onSuccess(Response<String> paramString) {
-                        ArrayList arrayList = new ArrayList();
-
-                        try {
-                            JsonArray itemList = JsonParser.parseString(paramString.body()).getAsJsonObject().get("epg_data").getAsJsonArray();
-                            for (JsonElement ele : itemList) {
-                                JsonObject obj = (JsonObject) ele;
-                                Epginfo epgbcinfo = new Epginfo(obj.get("title").getAsString().trim(), obj.get("start").getAsString().trim(), obj.get("end").getAsString().trim());
+         String epgStringAddress ="http://epg.51zmt.top:8000/api/diyp/?ch=";
+        UrlHttpUtil.get(epgStringAddress + URLEncoder.encode(channelName.replace("+", "[add]").toString()) + "&date=" + timeFormat.format(date), new CallBackUtil.CallBackString() {
+            public void onFailure(int i, String str) {
+            }
+            public void onResponse(String paramString) {
+                ArrayList arrayList = new ArrayList();
+                Log.d("返回的EPG信息", paramString);
+                try {
+                    if (paramString.contains("epg_data")) {
+                        final JSONArray jSONArray = new JSONObject(paramString).optJSONArray("epg_data");
+                        if (jSONArray != null)
+                            for (int b = 0; b < jSONArray.length(); b++) {
+                                JSONObject jSONObject = jSONArray.getJSONObject(b);
+                                Epginfo epgbcinfo = new Epginfo(jSONObject.optString("title"), jSONObject.optString("start"), jSONObject.optString("end"));
                                 arrayList.add(epgbcinfo);
-                           }
-                        } catch (Throwable th) {
-                            th.printStackTrace();
-                        }
-                        showEpg(arrayList);
-
-                        if (!hsEpg.contains(channelName))
-                            hsEpg.put(channelName, arrayList);
-                        showBottomEpg();
+                                Log.d("测试2", jSONObject.optString("title") + jSONObject.optString("start") + jSONObject.optString("end"));
+                            }
                     }
-
-                    @Override
-                    public String convertResponse(okhttp3.Response response) throws Throwable {
-                        return response.body().string();
-                    }
-                });
-
+                } catch (JSONException jSONException) {
+                    jSONException.printStackTrace();
+                }
+                showEpg(arrayList);
+                if (!hsEpg.contains(channelName))
+                    hsEpg.put(channelName, arrayList);
+                showBottomEpg();
+            }
+        });
     }
     //显示底部EPG
     private void showBottomEpg() {
