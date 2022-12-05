@@ -295,7 +295,7 @@
 
                 <TextView
                     android:id="@+id/play_time_step"
-                    android:singleLine="true"
+                    android:visibility="gone"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/vs_5"
@@ -310,7 +310,7 @@
                 <!--添加片头片尾重置按钮-->
                 <TextView
                     android:id="@+id/play_time_reset"
-                    android:singleLine="true"
+                    android:visibility="gone"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/vs_5"
@@ -321,7 +321,7 @@
                     android:text="重置"
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/ts_24" />
-
+                
                 <TextView
                     android:id="@+id/zimu_select"
                     android:singleLine="true"
