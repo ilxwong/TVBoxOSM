@@ -147,7 +147,7 @@
 						android:layout_marginTop="50px"
 						android:gravity="center"
 						android:paddingLeft="5dp"
-						android:text="暂无节目信息…"
+						android:text="以实时节目播放为准"
 						android:textColor="@color/color_FF0057"
 						android:visibility="gone" />
 
@@ -427,7 +427,7 @@
 			android:id="@+id/tv_next_program_time"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="暂无信息"
+			android:text="以实时节目播放为准"
 			android:singleLine="true"
 			android:ellipsize="marquee"
 			android:layout_toRightOf="@+id/tv_next_program"
